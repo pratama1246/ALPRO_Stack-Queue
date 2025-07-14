@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap'); /* Mengimpor font dari Google Fonts */
+
+body {
+  font-family: 'Quicksand'; /* Mengatur font utama */
+  background-color: #FFFFF0; /* Warna latar belakang */
+  color: #333; /* Warna teks */
+  margin: 0; /* Menghilangkan margin default */
+  padding: 0; /* Menghilangkan padding default */
+  max-height: 100vh; /* Tinggi maksimum viewport */
+}
+
+header {
+  background-color: #032B43; /* Warna latar belakang header */
+  color: #FFBA08; /* Warna teks header */
+  padding: 20px; /* Padding di dalam header */
+  font-family: 'Poppins', cursive; /* Font khusus untuk header */
+  text-align: left; /* Teks rata kiri */
+  position: sticky; /* Header tetap di atas saat discroll */
+  top: 0; /* Menempel di bagian atas */
+  z-index: 1000; /* Prioritas tumpukan tinggi */
+}
+
+header h1{
+  margin-left: 20px; /* Margin kiri untuk judul header */
+}
+
+main {
+  display: flex; /* Menggunakan flexbox */
+  justify-content: flex-start; /* Konten mulai dari kiri */
+  align-items: flex-start; /* Item rata atas */
+  padding: 40px; /* Padding di dalam main */
+  flex-wrap: wrap; /* Membungkus jika melebihi lebar */
+}
+
+.form-container {
+  flex: 1; /* Mengisi ruang yang tersedia */
+  min-width: 300px; /* Lebar minimum */
+  max-width: 600px; /* Lebar maksimum */
+}
+
+.form-section {
+  background-color: #F5F5F5; /* Warna latar belakang form */
+  border-left: 6px solid #3F88C5; /* Garis tebal di kiri */
+  border-radius: 10px; /* Sudut membulat */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Bayangan */
+  padding: 24px; /* Padding di dalam form */
+  margin-bottom: 30px; /* Jarak bawah antar form */
+}
+
+.notif-section {
+  flex: 1; /* Mengisi ruang yang tersedia */
+  min-width: 300px; /* Lebar minimum */
+  max-width: 100%; /* Lebar maksimum penuh */
+  background: #F5F5F5; /* Warna latar belakang */
+  padding: 24px; /* Padding di dalam section */
+  margin-left: 30px; /* Jarak kiri */
+  border-radius: 10px; /* Sudut membulat */
+  border-left: 6px solid #D00000; /* Garis tebal merah di kiri */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Bayangan */
+  box-sizing: border-box; /* Menghitung padding dan border dalam lebar */
+}
+
+.notif-section h2 {
+  margin-top: 0; /* Menghilangkan margin atas */
+}
+
+input[type="text"],
+select {
+  padding: 8px 12px; /* Padding dalam input */
+  font-size: 14px; /* Ukuran font */
+  border: 1px solid #136F63; /* Garis tepi input */
+  border-radius: 6px; /* Sudut membulat */
+  width: 250px; /* Lebar input */
+  margin-bottom: 10px; /* Jarak bawah antar input */
+  box-sizing: border-box; /* Menghitung padding dan border dalam lebar */
+}
+
+input[type="submit"] {
+  padding: 6px 16px; /* Padding tombol submit */
+  font-size: 14px; /* Ukuran font */
+  border-radius: 6px; /* Sudut membulat */
+  border: none; /* Tanpa garis tepi */
+  background-color: #FFBA08; /* Warna latar tombol */
+  color: #032B43; /* Warna teks tombol */
+  cursor: pointer; /* Kursor menjadi pointer */
+  margin-top: 10px; /* Jarak atas */
+  margin-right: 6px; /* Jarak kanan */
+  font-weight: 600; /* Ketebalan font */
+}
+
+input[type="submit"]:hover {
+  background-color: #D00000; /* Warna latar saat hover */
+  color: white; /* Warna teks saat hover */
+}
+
+label {
+  display: inline-block; /* Label sebagai blok sebaris */
+  width: 100px; /* Lebar label */
+  font-weight: 500; /* Ketebalan font */
+  margin-top: 6px; /* Jarak atas */
+}
+
+footer {
+  display: flex; /* Menggunakan flexbox */
+  justify-content: space-between; /* Spasi antar elemen */
+  flex-wrap: wrap; /* Membungkus jika sempit */
+  gap: 20px; /* Jarak antar elemen */
+  text-align: left; /* Teks rata kiri */
+  padding: 20px; /* Padding di dalam footer */
+  background-color: #032B43; /* Warna latar belakang footer */
+  color: white; /* Warna teks footer */
+  position: relative; /* Posisi relatif */
+  bottom: 0; /* Menempel di bawah */
+}
+
+.footer-left,
+.footer-right {
+  flex: 1; /* Mengisi ruang yang tersedia */
+  min-width: 250px; /* Lebar minimum */
+}
+
+.footer-left ul {
+  list-style-type: disc; /* Tipe bullet list */
+  padding-left: 20px; /* Padding kiri untuk list */
+  margin: 0; /* Menghilangkan margin */
+}
+
+@media (max-width: 1080px) {
+  main {
+    flex-direction: column; /* Susun kolom pada layar kecil */
+    align-items: center; /* Rata tengah */
+    padding: 20px; /* Padding di dalam main */
+  }
+
+  .form-container,
+  .notif-section {
+    width: 100%; /* Lebar penuh */
+    max-width: 600px; /* Lebar maksimum */
+    margin: 0 auto; /* Tengah secara horizontal */
+  }
+}
