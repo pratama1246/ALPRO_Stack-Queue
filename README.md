@@ -115,8 +115,7 @@ Display  → iterate $_SESSION['queue']
 | 5 | Pratama Putra Purwanto | 240202115 |
 
 **Class:** Teknik Informatika 1D  
-**Course:** Pemrograman Struktur Data (Stack & Queue)  
-**Lecturer:** Dwi Novia Prasetyanti, S.Kom., M.Cs.  
+**Course:** Pemrograman Struktur Data (Stack & Queue)   
 **Institution:** Politeknik Negeri Cilacap
 
 ---
