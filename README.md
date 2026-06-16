@@ -106,13 +106,13 @@ Display  → iterate $_SESSION['queue']
 
 ## 👥 Team
 
-| No | Name | NIM |
-|----|------|-----|
-| 1 | Aliyya Fadhilah | 240102097 |
-| 2 | Amelia Nur Hamda Rina | 240102098 |
-| 3 | Nuke Zahra Alifia | 240302113 |
-| 4 | Panji Parisya Akmal Hoetomo | 240202114 |
-| 5 | Pratama Putra Purwanto | 240202115 |
+| No | Name |
+|----|------|
+| 1 | Aliyya |
+| 2 | Amelia |
+| 3 | Nuke |
+| 4 | Panji |
+| 5 | Tama |
 
 **Class:** Teknik Informatika 1D  
 **Course:** Pemrograman Struktur Data (Stack & Queue)   
