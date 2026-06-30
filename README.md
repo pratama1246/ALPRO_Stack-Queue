@@ -114,12 +114,8 @@ Display  → iterate $_SESSION['queue']
 | 4 | Panji |
 | 5 | Tama |
 
-**Class:** Teknik Informatika 1D  
-**Course:** Pemrograman Struktur Data (Stack & Queue)   
-**Institution:** Politeknik Negeri Cilacap
-
 ---
 
 ## 📄 License
 
-This project is open for educational reference. No license applied.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
