@@ -1,4 +1,4 @@
-# Sistem Manajemen Turnamen E-Sport Berbasis Struktur Data
+# E-Sport Tournament Management System (Data Structures)
 
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%20%7C%208.x-777BB4?style=flat&logo=php&logoColor=white)](https://www.php.net/)
 [![Architecture](https://img.shields.io/badge/Architecture-Stack%20(LIFO)%20%26%20Queue%20(FIFO)-032B43?style=flat)](https://github.com/pratama1246/ALPRO_Stack-Queue)
@@ -7,208 +7,190 @@
 [![Version](https://img.shields.io/badge/Version-1.0-orange?style=flat)](index.php)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat)](LICENSE)
 
-Aplikasi web native berbasis PHP untuk mengelola strategi tim dan antrian pertandingan turnamen e-sport menggunakan implementasi langsung struktur data linear Stack (LIFO) dan Queue (FIFO) tanpa framework eksternal maupun database engine.
+A native PHP web application designed to manage team strategies and tournament match queues through direct implementations of linear Stack (LIFO) and Queue (FIFO) data structures, with zero external dependencies and zero database overhead.
 
 ---
 
-## Ringkasan Proyek
+## Project Overview
 
-Sistem Manajemen Turnamen E-Sport dirancang untuk memenuhi kebutuhan simulasi alur operasional kompetisi e-sport pada tingkat teknis dasar. Aplikasi ini mengimplementasikan dua pilar utama struktur data komputer:
+The E-Sport Tournament Management System simulates operational competitive tournament workflows using two fundamental linear data structures:
 
-1. **Stack (LIFO: Last-In, First-Out)**: Digunakan untuk mencatat strategi taktis tim secara berurutan. Strategi terbaru yang dimasukkan menjadi elemen paling atas, sehingga fitur koreksi atau pembatalan (*undo*) dapat mencabut keputusan taktis terakhir secara instan.
-2. **Queue (FIFO: First-In, First-Out)**: Digunakan untuk mengelola antrian giliran bertanding antar tim. Tim yang pertama mendaftar antrian akan dipanggil pertama kali ke arena pertandingan (*first-come, first-served*).
+1. **Stack (LIFO: Last-In, First-Out)**: Records tactical strategies for competing teams sequentially. The newest strategy occupies the top position, enabling instant rollbacks (undo) of recent decisions without altering earlier strategic plans.
+2. **Queue (FIFO: First-In, First-Out)**: Schedules match lineups in arrival order. Teams entering the queue first are called to the arena first on a first-come, first-served basis.
 
-Seluruh status aplikasi disimpan langsung di dalam memori runtime melalui `$_SESSION` PHP native. Sistem bersifat local-first, berjalan tanpa ketergantungan database MySQL/PostgreSQL, serta bebas dari telemetri eksternal.
+Application state resides in memory via native PHP sessions (`$_SESSION`). The system is local-first, requires no external database (MySQL/PostgreSQL), and carries zero telemetry.
 
 ---
 
-## Masalah dan Solusi Praktis
+## Practical Problem-Solution Breakdown
 
-| Masalah Operasional Lapangan | Solusi Teknis Struktur Data | Mekanisme Implementasi |
+| Tournament Operational Problem | Technical Solution | Implementation Mechanism |
 | :--- | :--- | :--- |
-| **Koreksi Taktik Cepat di Ruang Tunggu**<br>Pelatih atau analis tim sering kali perlu merevisi perintah taktik terakhir saat draft pick berlangsung tanpa merusak riwayat taktik sebelumnya. | **LIFO Stack** | Pemanggilan `popStrategiTerakhir()` mencabut elemen indeks puncak (*top*) dari tim bersangkutan menggunakan `array_pop()`. |
-| **Penumpukan Antrian Tidak Teratur**<br>Perebutan jadwal tanding dan risiko pemanggilan tim ganda saat turnamen berlangsung serentak. | **FIFO Queue dengan Proteksi Duplikasi** | Fungsi `enqueue()` melakukan validasi linear traversal untuk memastikan nama tim belum terdaftar di antrian aktif sebelum menempatkannya di posisi `tail`. |
-| **Sinkronisasi Data Taktik saat Tim Dipanggil**<br>Petugas turnamen membutuhkan ringkasan taktik yang sudah disiapkan tim saat giliran tanding tiba. | **Cross-Reference Dequeue** | Saat `dequeue()` dijalankan pada posisi `head`, sistem otomatis membaca daftar strategi tim dari `$_SESSION['stack']`, menampilkan ringkasan ke notifikasi, lalu membersihkan entri tim dari stack. |
+| **Rapid Tactic Revision in Draft Rooms**<br>Coaches and analysts often need to revoke the most recent tactical instruction during draft picks without clearing prior plans. | **LIFO Stack** | Invoking `popStrategiTerakhir()` identifies the top index (`top`) of the active team and removes the newest tactic using `array_pop()`. |
+| **Unordered Match Staging & Duplicate Entries**<br>Simultaneous registrations risk schedule collisions and accidental double-queuing of the same team. | **FIFO Queue with Duplicate Guard** | The `enqueue()` routine performs a linear traversal from `head` to `tail` to verify that the team is not already queued before appending to index `tail`. |
+| **Tactical Handover Upon Match Call**<br>Referees and production desks require an immediate summary of pre-set team strategies when a match is called. | **Cross-Reference Dequeue** | Calling `dequeue()` retrieves the team at index `head`, pulls their recorded tactics from `$_SESSION['stack']`, prints them to the notification log, and cleans up the team entry in the stack. |
 
 ---
 
-## Fitur dan Spesifikasi Teknis
+## Core Engineering Capabilities
 
-### 1. Modul Manajemen Strategi (`stack.php`)
-- **Kapasitas Maksimum**: Dibatasi hingga 10 tim (`define("MAX", 10)`).
-- **Indeks Top**: Posisi tumpukan dipantau via `$stack['top']` dengan nilai awal `-1` (kondisi kosong).
-- **Operasi Push (`pushStrategi`)**:
-  - Memeriksa apakah nama tim sudah ada pada rentang `0` sampai `top`. Jika ada, strategi baru di-append ke array strategi tim terkait.
-  - Jika tim belum ada dan `$stack['top'] < MAX - 1`, indeks `top` dinaikkan dan entri tim baru dibuat.
-  - Menolak penambahan bila tumpukan telah mencapai batas kapasitas maksimum.
-- **Operasi Pop (`popStrategiTerakhir`)**:
-  - Melakukan pencarian dari indeks `top` menurun ke `0` untuk mengeksekusi `array_pop` pada strategi paling akhir.
-- **Operasi Traversal / Cetak (`cetakStack`)**:
-  - Menampilkan daftar tim beserta strateginya secara terbalik (`array_reverse`), memastikan strategi terkini berada di urutan teratas.
-- **Operasi Reset (`resetStack`)**:
-  - Mengembalikan struktur stack ke status inisial `top = -1` dan `data = []`.
+### 1. Strategy Stack Module (`stack.php`)
+- **Capacity Limit**: Enforces a strict upper bound of 10 entries (`define("MAX", 10)`).
+- **Top Pointer**: Monitored via `$stack['top']`, initialized to `-1` to represent an empty stack.
+- **Push Operation (`pushStrategi`)**:
+  - Scans active teams between index `0` and `top`. If the team exists, appends the new strategy to that team's strategy list.
+  - If the team is new and `$stack['top'] < MAX - 1`, increments `top` and allocates a new team node.
+  - Rejects incoming pushes with a notification when the stack reaches capacity.
+- **Pop Operation (`popStrategiTerakhir`)**:
+  - Traverses backwards from index `top` down to `0` to execute `array_pop()` on the latest tactic.
+- **Traversal Operation (`cetakStack`)**:
+  - Formats all teams and their respective strategies in reverse chronological order (`array_reverse`), placing the newest tactics at the top.
+- **Reset Operation (`resetStack`)**:
+  - Reinitializes the stack to `top = -1` and `data = []`.
 
-### 2. Modul Antrian Pertandingan (`queue.php`)
-- **Kapasitas Antrian**: Dibatasi hingga 10 antrian (`define("MAX", 10)`).
-- **Indeks Head & Tail**: Dipantau melalui `$queue['head']` dan `$queue['tail']` dengan nilai inisial `-1`.
-- **Operasi Enqueue (`enqueue`)**:
-  - Memvalidasi status penuh via `isQueueFull()`.
-  - Melakukan pengecekan duplikasi agar tim yang sama tidak masuk dua kali.
-  - Menginisialisasi `head = tail = 0` jika antrian kosong, atau menaikkan pointer `tail++`.
-- **Operasi Dequeue (`dequeue`)**:
-  - Mengambil data tim pada indeks `head`.
-  - Mengambil daftar strategi tim dari stack untuk ditampilkan ke flash session.
-  - Menggeser seluruh elemen berikutnya ke depan satu indeks (`$queue['data'][$i] = $queue['data'][$i + 1]`).
-  - Menghapus posisi lama `tail` via `unset()`, menurunkan pointer `tail--`, dan menyetel `head = -1` jika antrian kosong.
-  - Menghapus data tim dari stack menggunakan `array_splice()` serta menurunkan pointer `$stack['top']`.
-- **Operasi Display (`tampilkanQueue`)**:
-  - Menampilkan urutan antrian aktif dari posisi `head` hingga `tail`.
-- **Operasi Reset (`resetQueue`)**:
-  - Mengembalikan nilai pointer `head = -1`, `tail = -1`, dan mengosongkan data.
+### 2. Match Queue Module (`queue.php`)
+- **Queue Bounds**: Enforces a maximum limit of 10 teams (`define("MAX", 10)`).
+- **Head & Tail Pointers**: Tracked via `$queue['head']` and `$queue['tail']`, initialized to `-1`.
+- **Enqueue Operation (`enqueue`)**:
+  - Validates boundary limits via `isQueueFull()`.
+  - Scans existing entries to prevent duplicate team registrations.
+  - Initializes pointers (`head = tail = 0`) on an empty queue or increments `tail++`.
+- **Dequeue Operation (`dequeue`)**:
+  - Reads the team from index `head`.
+  - Pulls associated strategies from `$_SESSION['stack']` for display in the flash notification log.
+  - Shifts remaining elements forward by one index (`$queue['data'][$i] = $queue['data'][$i + 1]`).
+  - Removes the old tail element via `unset()`, decrements `tail--`, and resets `head = -1` when the queue becomes empty.
+  - Purges the dequeued team from stack memory using `array_splice()` and decrements `$stack['top']`.
+- **Display Operation (`tampilkanQueue`)**:
+  - Enumerates active queue positions sequentially from `head` through `tail`.
+- **Reset Operation (`resetQueue`)**:
+  - Restores queue pointers to `head = -1`, `tail = -1`, and empties the data container.
 
-### 3. Flash Notification Engine
-- Menyimpan status feedback operasi (`$_SESSION['flash'][]`).
-- Ditampilkan pada kontainer notifikasi di `index.php` dan langsung dihapus melalui `unset($_SESSION['flash'])` agar tidak terjadi perulangan pesan (*ephemeral state*).
+### 3. Flash Notification Subsystem
+- Stores feedback messages in `$_SESSION['flash'][]`.
+- Displays pending status notices inside `index.php` and immediately cleans up memory via `unset($_SESSION['flash'])` to ensure ephemeral presentation.
 
 ---
 
-## Arsitektur Sistem
+## System Architecture
 
-Alur interaksi pengguna, routing aksi form HTTP POST, mutasi session memori, dan pergeseran elemen digambarkan pada diagram berikut:
+The following diagram details client form submissions, HTTP POST routing, session state mutations, and redirect rendering:
 
 ```mermaid
 flowchart TD
-    subgraph Browser["Klien (Browser)"]
-        UI["index.php (UI Form & Flash Box)"]
+    subgraph Browser["Client (Browser)"]
+        UI["index.php (UI Controls & Flash Output)"]
     end
 
-    subgraph Controller["Pemroses Permintaan (Controller)"]
-        S_CTL["stack.php (LIFO Handler)"]
-        Q_CTL["queue.php (FIFO Handler)"]
+    subgraph Controller["Request Handlers"]
+        S_CTL["stack.php (LIFO Strategy Handler)"]
+        Q_CTL["queue.php (FIFO Match Queue Handler)"]
     end
 
-    subgraph State["Penyimpanan Sesi ($_SESSION)"]
-        STACK_STORE[("$_SESSION['stack']<br/>top, data[]")]
-        QUEUE_STORE[("$_SESSION['queue']<br/>head, tail, data[]")]
-        FLASH_STORE[("$_SESSION['flash']<br/>Pesan Notifikasi")]
+    subgraph State["Session Runtime Storage ($_SESSION)"]
+        STACK_STORE[("$_SESSION['stack']<br/>top pointer, data array")]
+        QUEUE_STORE[("$_SESSION['queue']<br/>head, tail pointers, data array")]
+        FLASH_STORE[("$_SESSION['flash']<br/>Ephemeral Notice Array")]
     end
 
     UI -->|"POST: Tambah, Undo, Cetak, Reset"| S_CTL
-    UI -->|"POST: Tambah Antrian, Panggil, Tampilkan, Reset"| Q_CTL
+    UI -->|"POST: Tambah Antrian, Panggil Tim, Tampilkan, Reset"| Q_CTL
 
-    S_CTL -->|"Mutasi top & array strategi"| STACK_STORE
-    S_CTL -->|"Push status operasi"| FLASH_STORE
+    S_CTL -->|"Mutate top pointer & strategy array"| STACK_STORE
+    S_CTL -->|"Append operation notice"| FLASH_STORE
     S_CTL -->|"HTTP 302 Redirect"| UI
 
-    Q_CTL -->|"Mutasi head, tail & pergeseran indeks"| QUEUE_STORE
-    Q_CTL -->|"Baca strategi tim & hapus dari stack"| STACK_STORE
-    Q_CTL -->|"Push status pemanggilan antrian"| FLASH_STORE
+    Q_CTL -->|"Mutate head, tail & shift indices"| QUEUE_STORE
+    Q_CTL -->|"Read team strategy & purge from stack"| STACK_STORE
+    Q_CTL -->|"Append call notice"| FLASH_STORE
     Q_CTL -->|"HTTP 302 Redirect"| UI
 
-    FLASH_STORE -.->|"Render & unset notifikasi"| UI
+    FLASH_STORE -.->|"Render & unset flash notices"| UI
 ```
 
 ---
 
-## Struktur Direktori
+## Directory Structure
 
 ```text
 Turnamen-ESport-StrukturData/
-├── index.php    # Halaman utama: formulir input, dropdown dinamis, dan box notifikasi
-├── queue.php    # Logika FIFO queue: enqueue, dequeue, geser elemen, dan reset
-├── stack.php    # Logika LIFO stack: push strategi, undo pop, cetak, dan reset
-├── style.css    # Desain tampilan responsif (layout dua kolom dan breakpoint mobile)
-└── README.md    # Dokumentasi arsitektur dan panduan operasional proyek
+├── index.php    # Primary entry point: form inputs, dynamic dropdowns, and notification log
+├── queue.php    # FIFO queue logic: enqueue, dequeue, array element shift, and reset
+├── stack.php    # LIFO stack logic: strategy push, undo pop, traversal print, and reset
+├── style.css    # Responsive stylesheet: two-column flex layout and mobile breakpoint
+├── LICENSE      # MIT License terms
+└── README.md    # System documentation and operational runbook
 ```
 
-### Panduan Tanggung Jawab Berkas
+### Component Responsibilities
 
-- **`index.php`**: Berkas presentasi utama. Membaca `$_SESSION['stack']['data']` untuk mengisi pilihan `<select>` secara dinamis, mengarahkan form ke pengendali terkait, dan menampilkan notifikasi flash.
-- **`stack.php`**: Penanggung jawab manipulasi array tumpukan strategi. Memproses aksi `Tambah`, `Undo`, `Cetak`, dan `Reset Strategi`.
-- **`queue.php`**: Penanggung jawab antrian pertandingan. Memproses aksi `Tambah Antrian`, `Panggil Tim`, `Tampilkan Antrian`, dan `Reset Antrian`. Berinteraksi langsung dengan stack untuk integrasi data strategi.
-- **`style.css`**: Pengatur tata letak antarmuka. Menggunakan Flexbox dua kolom dengan palet warna kontras (`#032B43`, `#FFBA08`, `#136F63`, `#D00000`, `#F5F5F5`), serta breakpoint responsif `1080px` untuk perangkat mobile.
+- **`index.php`**: Primary view and presentation layer. Dynamically renders `<select>` options from registered stack teams in `$_SESSION['stack']['data']`, routes form submissions, and displays flash notices.
+- **`stack.php`**: Controller for stack-based tactical operations (`Tambah`, `Undo`, `Cetak`, and `Reset Strategi`).
+- **`queue.php`**: Controller for queue-based match operations (`Tambah Antrian`, `Panggil Tim`, `Tampilkan Antrian`, and `Reset Antrian`). Coordinates with stack data during match dispatch.
+- **`style.css`**: Styling layer implementing a two-column responsive desktop layout with an adaptive `1080px` breakpoint for mobile displays.
 
 ---
 
-## Panduan Instalasi dan Pengoperasian
+## Installation & Operational Runbook
 
-### Kebutuhan Sistem
-- Runtimes: PHP versi 7.4, 8.0, 8.1, 8.2, atau 8.3.
-- Web Browser modern (Chrome, Firefox, Safari, Edge).
+### System Prerequisites
+- PHP 7.4, 8.0, 8.1, 8.2, or 8.3 installed on host.
+- Modern web browser (Chrome, Firefox, Safari, Edge).
 
-### Cara 1: Menggunakan PHP Built-in Server (Metode Paling Cepat)
+### Option 1: PHP Built-in Server (Fastest Local Setup)
 
-1. Clone repositori ke komputer lokal:
+1. Clone the repository:
    ```bash
    git clone https://github.com/pratama1246/ALPRO_Stack-Queue.git
    cd ALPRO_Stack-Queue
    ```
 
-2. Jalankan server bawaan PHP:
+2. Start the built-in development server:
    ```bash
    php -S localhost:8000
    ```
 
-3. Buka peramban web pada tautan:
+3. Open your browser and navigate to:
    ```text
    http://localhost:8000
    ```
 
-### Cara 2: Menggunakan XAMPP / Laragon / WampServer
+### Option 2: Apache via XAMPP, Laragon, or WampServer
 
-1. Salin atau pindahkan folder proyek ke direktori web server:
+1. Place the project directory inside the server web root:
    - XAMPP: `C:\xampp\htdocs\ALPRO_Stack-Queue`
    - Laragon: `C:\laragon\www\ALPRO_Stack-Queue`
-2. Pastikan service **Apache** sudah berjalan.
-3. Akses aplikasi melalui URL:
+2. Start the **Apache** service.
+3. Access the application in your browser:
    ```text
    http://localhost/ALPRO_Stack-Queue/
    ```
 
-### Cara 3: Menggunakan Docker
+### Option 3: Docker Container
 
-Jalankan server Apache berbasis PHP 8.2 secara langsung tanpa instalasi lokal:
+Run an isolated PHP 8.2 Apache container with a single command:
 ```bash
-docker run -d --name esport-turnamen -p 8000:80 -v "${PWD}:/var/www/html" php:8.2-apache
+docker run -d --name esport-tournament -p 8000:80 -v "${PWD}:/var/www/html" php:8.2-apache
 ```
-Akses melalui `http://localhost:8000`.
+Access the application at `http://localhost:8000`.
 
 ---
 
-## Matriks Operasi dan Aksi Antarmuka
+## Interface Actions & Logic Reference
 
-| Formulir | Tombol Aksi | Target Berkas | Aksi Logika Data | Hasil Keluaran |
+| Form Section | Action Button | Target Script | Data Routine | State Effect |
 | :--- | :--- | :--- | :--- | :--- |
-| **Input Strategi Tim** | `Tambah` | `stack.php` | `pushStrategi()` | Entri tim/strategi masuk ke stack. Dropdown antrian diperbarui. |
-| **Input Strategi Tim** | `Undo` | `stack.php` | `popStrategiTerakhir()` | Strategi teratas dari tim terakhir dihapus dari stack. |
-| **Input Strategi Tim** | `Cetak` | `stack.php` | `cetakStack()` | Seluruh tim dan daftar strateginya ditampilkan dari posisi top. |
-| **Input Strategi Tim** | `Reset Strategi` | `stack.php` | `resetStack()` | Seluruh memori stack dihapus (`top = -1`). |
-| **Antrian Pertandingan**| `Tambah Antrian` | `queue.php` | `enqueue()` | Tim dimasukkan ke posisi `tail` (ditolak jika sudah ada di antrian). |
-| **Antrian Pertandingan**| `Panggil Tim` | `queue.php` | `dequeue()` | Tim posisi `head` dipanggil beserta strateginya, elemen antrian digeser maju, entri tim dikeluarkan dari stack. |
-| **Antrian Pertandingan**| `Tampilkan Antrian`| `queue.php` | `tampilkanQueue()` | Urutan antrian aktif dari posisi 1 hingga N ditampilkan. |
-| **Antrian Pertandingan**| `Reset Antrian` | `queue.php` | `resetQueue()` | Seluruh antrian dihapus (`head = -1`, `tail = -1`). |
+| **Input Strategi Tim** | `Tambah` | `stack.php` | `pushStrategi()` | Team and strategy pushed to stack. Queue dropdown updates. |
+| **Input Strategi Tim** | `Undo` | `stack.php` | `popStrategiTerakhir()` | Topmost strategy of the target team popped from stack. |
+| **Input Strategi Tim** | `Cetak` | `stack.php` | `cetakStack()` | Traverses stack from top down and prints all active tactics. |
+| **Input Strategi Tim** | `Reset Strategi` | `stack.php` | `resetStack()` | Clears all stack data and resets top pointer to `-1`. |
+| **Antrian Pertandingan**| `Tambah Antrian` | `queue.php` | `enqueue()` | Inserts team at index `tail` (blocked if duplicate exists). |
+| **Antrian Pertandingan**| `Panggil Tim` | `queue.php` | `dequeue()` | Dispatches team at index `head`, displays strategies, shifts array forward, and removes team from stack. |
+| **Antrian Pertandingan**| `Tampilkan Antrian`| `queue.php` | `tampilkanQueue()` | Prints active queue positions from index 1 through N. |
+| **Antrian Pertandingan**| `Reset Antrian` | `queue.php` | `resetQueue()` | Clears queue array and resets head and tail pointers to `-1`. |
 
 ---
 
-## Metadata Akademik Proyek
+## License
 
-Proyek ini disusun sebagai bagian dari pemenuhan Ujian Tengah Semester (UTS) mata kuliah Pemrograman Struktur Data:
-
-- **Mata Kuliah**: Pemrograman Struktur Data (Materi: Stack & Queue)
-- **Dosen Pengampu**: Dwi Novia Prasetyanti, S.Kom., M.Cs.
-- **Institusi**: Politeknik Negeri Cilacap
-- **Program Studi / Kelas**: D3 Teknik Informatika / 1D
-- **Tahun Akademik**: 2024/2025
-
-### Tim Penyusun
-1. Aliyya Fadhilah (NIM: 240102097)
-2. Amelia Nur Hamda Rina (NIM: 240102098)
-3. Nuke Zahra Alifia (NIM: 240302113)
-4. Panji Parisya Akmal Hoetomo (NIM: 240202114)
-5. Pratama Putra Purwanto (NIM: 240202115)
-
----
-
-## Lisensi
-
-Proyek ini didistribusikan di bawah lisensi terbuka [MIT License](LICENSE) untuk keperluan edukasi dan pengembangan akademis.
+This project is distributed under the terms of the [MIT License](LICENSE).
